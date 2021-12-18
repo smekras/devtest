@@ -1,17 +1,47 @@
 import React from 'react';
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { error: null, errorInfo: null };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    this.setState({
+      error: error,
+      errorInfo: errorInfo,
+    });
+  }
+
+  render() {
+    if (this.state.errorInfo) {
+      return (
+        <div>
+          <h2>Something went wrong.</h2>
+          <details style={{ whiteSpace: "pre-wrap" }}>
+            {this.state.error && this.state.error.toString()}
+            <br />
+            {this.state.errorInfo.componentStack}
+          </details>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 class Counter extends React.Component {
   constructor(props) {
     super(props);
     this.state = { counter: 0 };
     this.handleClick = this.handleClick.bind(this);
   }
-  
+
   handleClick() {
     this.setState(({counter}) => ({
       counter: counter + 1
     }));
   }
-  
+
   render() {
     if (this.state.counter === 5) {
       throw new Error('Crashed.');
@@ -31,8 +61,12 @@ function App() {
         </b>
       </p>
       <hr />
+      <ErrorBoundary>
         <Counter />
+      </ErrorBoundary>
+      <ErrorBoundary>
         <Counter />
+      </ErrorBoundary>
       <hr />
     </div>
   );
